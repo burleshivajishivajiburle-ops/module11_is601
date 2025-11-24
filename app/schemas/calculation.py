@@ -1,5 +1,4 @@
-"""Calculation schemas for request/response validation."""
-
+"""Pydantic models for calculator input and output validation."""
 from __future__ import annotations
 
 from datetime import datetime
@@ -12,11 +11,11 @@ from app.core.enums import CalculationType
 
 
 class CalculationBase(BaseModel):
-    """Base schema shared by create and read workflows."""
+    """Shared fields for all calculation payloads."""
 
     a: float = Field(..., description="First operand", examples=[10.5])
     b: float = Field(..., description="Second operand", examples=[4])
-    type: CalculationType = Field(..., description="Operation to execute", examples=["add"])
+    type: CalculationType = Field(..., description="Operation", examples=["add"])
 
     @field_validator("type", mode="before")
     @classmethod
@@ -31,24 +30,22 @@ class CalculationBase(BaseModel):
 
     model_config = ConfigDict(
         from_attributes=True,
-        json_schema_extra={
-            "example": {"a": 10, "b": 5, "type": "add"},
-        },
+        json_schema_extra={"example": {"a": 10, "b": 5, "type": "add"}},
     )
 
 
 class CalculationCreate(CalculationBase):
-    """Input schema for creating a calculation row."""
+    """Input schema for creating calculations."""
 
     user_id: Optional[UUID] = Field(
         default=None,
-        description="Optional UUID of the owning user",
+        description="Optional UUID of the user who owns this calculation",
         examples=["123e4567-e89b-12d3-a456-426614174000"],
     )
 
 
 class CalculationRead(CalculationBase):
-    """Output schema for serialized calculation rows."""
+    """Output schema for returning stored calculations."""
 
     id: UUID = Field(..., description="Primary key")
     user_id: Optional[UUID] = Field(default=None, description="Owning user")
