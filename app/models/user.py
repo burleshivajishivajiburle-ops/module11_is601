@@ -65,8 +65,7 @@ class User(Base):
         nullable=False
     )
 
-    # Relationship to calculations. Passive deletes let the database enforce
-    # referential integrity without forcing every calculation to belong to a user.
+    # Relationship to calculations (optional association managed via FK).
     calculations = relationship(
         "Calculation",
         back_populates="user",
