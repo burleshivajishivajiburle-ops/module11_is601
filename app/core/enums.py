@@ -1,11 +1,11 @@
-"""Domain enumerations used across the application."""
+"""Domain enumerations shared across the calculator app."""
 from __future__ import annotations
 
 from enum import Enum
 
 
 class CalculationType(str, Enum):
-    """Supported calculation types for the calculator domain."""
+    """Supported calculation operations."""
 
     ADD = "add"
     SUBTRACT = "subtract"
@@ -14,21 +14,21 @@ class CalculationType(str, Enum):
 
     @classmethod
     def from_value(cls, value: str | "CalculationType") -> "CalculationType":
-        """Normalize arbitrary strings into the canonical enum values."""
+        """Normalize an incoming string into a CalculationType member."""
         if isinstance(value, cls):
             return value
         if not isinstance(value, str):
-            raise ValueError("Calculation type must be provided as a string.")
+            raise ValueError("Calculation type must be a string.")
         normalized = value.strip().lower()
         for member in cls:
             if member.value == normalized:
                 return member
         raise ValueError(
             f"Unsupported calculation type '{value}'."
-            f" Use one of: {', '.join(member.value for member in cls)}."
+            f" Valid options: {', '.join(member.value for member in cls)}."
         )
 
     @classmethod
     def choices(cls) -> tuple[str, ...]:
-        """Return the tuple of valid string representations."""
+        """Return a tuple of the valid string values."""
         return tuple(member.value for member in cls)
