@@ -1,5 +1,4 @@
 """SQLAlchemy model and factory helpers for calculator data."""
-
 from __future__ import annotations
 
 import uuid
@@ -16,7 +15,7 @@ from app.operations import add, divide, multiply, subtract
 
 
 class Calculation(Base):
-    """Persisted representation of a calculation request."""
+    """Persisted representation of an arithmetic calculation."""
 
     __tablename__ = "calculations"
 
@@ -39,7 +38,7 @@ class Calculation(Base):
         nullable=False,
     )
 
-    user = relationship("User", back_populates="calculations")
+    user = relationship("User", back_populates="calculations", passive_deletes=True)
 
     @validates("type")
     def _validate_type(self, key, value):  # pragma: no cover - exercised via tests
@@ -47,15 +46,16 @@ class Calculation(Base):
         return calc_type.value
 
     @validates("a", "b")
-    def _validate_numbers(self, key, value):  # pragma: no cover - run via tests
+    def _validate_numbers(self, key, value):  # pragma: no cover - exercised via tests
         if value is None:
             raise ValueError(f"{key} is required")
         return float(value)
 
     def compute_result(self) -> float:
-        """Recompute the result using the current operands and type."""
-        operation = CalculationFactory.operation_map()[CalculationType.from_value(self.type)]
-        if CalculationType.from_value(self.type) == CalculationType.DIVIDE and self.b == 0:
+        """Compute and persist the result based on the stored operands."""
+        calc_type = CalculationType.from_value(self.type)
+        operation = CalculationFactory.operation_map()[calc_type]
+        if calc_type == CalculationType.DIVIDE and self.b == 0:
             raise ValueError("Cannot divide by zero.")
         self.result = float(operation(self.a, self.b))
         return self.result
@@ -68,7 +68,7 @@ class Calculation(Base):
 
 
 class CalculationFactory:
-    """Factory that knows how to instantiate Calculation records."""
+    """Factory that builds Calculation instances with validated results."""
 
     _OPERATIONS: Dict[CalculationType, Callable[[float, float], float]] = {
         CalculationType.ADD: add,
@@ -79,7 +79,7 @@ class CalculationFactory:
 
     @classmethod
     def operation_map(cls) -> Dict[CalculationType, Callable[[float, float], float]]:
-        """Expose the operation mapping (useful for tests)."""
+        """Expose the operation mapping for reuse in tests."""
         return cls._OPERATIONS
 
     @classmethod
@@ -91,7 +91,7 @@ class CalculationFactory:
         calculation_type: str | CalculationType,
         user_id: Optional[uuid.UUID] = None,
     ) -> Calculation:
-        """Create a Calculation with a pre-computed result."""
+        """Construct a Calculation populated with the computed result."""
 
         calc_type = CalculationType.from_value(calculation_type)
         if calc_type == CalculationType.DIVIDE and b == 0:
@@ -105,4 +105,3 @@ class CalculationFactory:
             type=calc_type.value,
             result=result,
         )
-
