@@ -87,8 +87,8 @@ jobs:
         with:
           push: true
           tags: |
-            shivajiburle/asignmentsqlaa:latest
-            shivajiburle/asignmentsqlaa:${{ github.sha }}
+            shivajiburle/assignmentsqlaaa:latest
+            shivajiburle/assignmentsqlaaa:${{ github.sha }}
           platforms: linux/amd64,linux/arm64
-          cache-from: type=registry,ref=shivajiburle/asignmentsqlaa:cache
+          cache-from: type=registry,ref=shivajiburle/assignmentsqlaaa:cache
           cache-to: type=inline,mode=max

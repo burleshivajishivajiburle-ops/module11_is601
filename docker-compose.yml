@@ -3,6 +3,7 @@ version: '3.8'
 services:
   # Service: web
   web:
+    image: shivajiburle/assignmentsqlaaa:dev
     build: .
     container_name: fastapi_calculator
     ports:
